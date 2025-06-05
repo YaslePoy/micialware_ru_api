@@ -1,0 +1,12 @@
+[package]
+name = "micialware_ru_api"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+axum = "0.8.4"
+teloxide = "0.15.0"
+tokio = { version = "1.45.1", features = ["rt", "rt-multi-thread", "macros"] }
+serde = { version = "1.0.219", features = ["derive"] }
+log = "0.4"
+pretty_env_logger = "0.5"
