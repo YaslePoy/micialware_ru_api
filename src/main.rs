@@ -1,12 +1,11 @@
 use axum::extract::State;
-use axum::routing::{get, post};
+use axum::routing::post;
 use axum::{Json, Router};
 use serde::Deserialize;
 use std::sync::Arc;
-use std::thread;
-use teloxide::Bot;
 use teloxide::prelude::*;
-use teloxide::prelude::{Message, Requester};
+use teloxide::prelude::Requester;
+use teloxide::Bot;
 
 struct AppState {
     bot: Bot,
@@ -22,11 +21,11 @@ async fn main() {
         .route("/order", post(handle_order))
         .with_state(Arc::clone(&shared_bot));
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:81").await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
 
-async fn handle_order(state: State<Arc<AppState>>, Json(order): Json<order_data>) {
+async fn handle_order(state: State<Arc<AppState>>, Json(order): Json<OrderData>) {
     println!("{:?}", order);
     state
         .bot
@@ -36,7 +35,7 @@ async fn handle_order(state: State<Arc<AppState>>, Json(order): Json<order_data>
 }
 
 #[derive(Deserialize, Debug)]
-struct order_data {
+struct OrderData {
     server_type: u8,
     rent_type: u8,
     slots: u8,
@@ -45,7 +44,7 @@ struct order_data {
     project: String,
 }
 
-impl order_data {
+impl OrderData {
     pub(crate) fn to_telegram(&self) -> String {
         let msg = format!(
             "Новая заявка на хостинг:
@@ -59,11 +58,11 @@ impl order_data {
             self.email,
             self.slots,
             if self.server_type == 0 {
-                "Rasberry"
+                "Raspberry"
             } else {
                 "Unlimited"
             },
-            if self.server_type == 0 {
+            if self.rent_type == 0 {
                 "Неделя"
             } else {
                 "Месяц"
