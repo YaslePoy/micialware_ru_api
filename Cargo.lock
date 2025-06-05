@@ -885,11 +885,11 @@ name = "micialware_ru_api"
 version = "0.1.0"
 dependencies = [
  "axum",
- "log",
  "pretty_env_logger",
  "serde",
  "teloxide",
  "tokio",
+ "tower-http",
 ]
 
 [[package]]

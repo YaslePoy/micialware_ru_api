@@ -1,11 +1,13 @@
 use axum::extract::State;
+use axum::http::Method;
 use axum::routing::post;
 use axum::{Json, Router};
 use serde::Deserialize;
 use std::sync::Arc;
-use teloxide::prelude::*;
 use teloxide::prelude::Requester;
+use teloxide::prelude::*;
 use teloxide::Bot;
+use tower_http::cors::{Any, CorsLayer};
 
 struct AppState {
     bot: Bot,
@@ -16,11 +18,14 @@ async fn main() {
 
     let bot = Bot::new("7994351313:AAEj1BLqnadoD4UutVhLaD5ALYuGzO-KCTM");
     let shared_bot = Arc::new(AppState { bot });
-
+    let cors = CorsLayer::new().allow_origin(Any)        .allow_methods(vec![Method::GET, Method::POST]);
+    // Allow all origins (open policy)
     let app = Router::new()
         .route("/order", post(handle_order))
-        .with_state(Arc::clone(&shared_bot));
+        .with_state(Arc::clone(&shared_bot))
+        .layer(cors);
 
+    println!("Server started!!!");
     let listener = tokio::net::TcpListener::bind("0.0.0.0:81").await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
